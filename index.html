@@ -1,0 +1,292 @@
+<html>
+
+    <style>
+        #body{
+            height: 100vh;
+        }
+        
+        #screen{
+            background-color:blanchedalmond;
+            font-size: 60px; 
+            display:flex;
+            justify-content: right;
+            align-items: center;
+            padding-right: 1%;
+            border: solid black;     
+            }
+        
+        #mainBody{
+            /*justify-items: center;*/
+            margin: 10% 33% 5% 33%;
+            height: 70vh;
+            border: solid black;
+            display: grid;
+            grid-template-rows: 20% 16% 64%;
+            gap: 2px;
+            padding: 4px;
+            background-color: rgb(187, 211, 255);
+
+        }
+
+        #buttons{
+            display:grid;
+            grid-template-columns:75% 25%;
+            
+        }
+
+        #numbers{
+            display:grid;
+            grid-template-columns:33% 33% 33%;
+            text-align:center;
+            
+            
+        }
+        #buttonsRight{
+            display:grid;
+            grid-template-rows:25% 25% 25%;
+            text-align:center;
+            background-color: white;
+            
+            
+        }
+
+        #equal{
+            background-color: orange;
+            color:white;
+        }
+
+        #clear{
+            background-color:yellow;
+            color:black;
+        }
+
+        #auxButtons{
+            display:grid;
+            grid-template-columns:50% 50%;
+        }
+
+        #BS{
+            background-color: white;
+        }
+        #point{
+            background-color: white;
+        }
+        
+
+       
+        
+        .display{
+
+        }
+
+        .numbers{
+            background-color: rgb(196, 194, 194);
+            border: solid  black;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            
+            
+        }
+
+        .buttons{
+            border: solid  black;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .operations{
+
+        }
+
+
+    </style>
+
+
+    <body style.height='100vh'>
+
+        <div id='mainBody'>  
+            <div id='screen'>0</div>
+            
+            <div id='auxButtons'>
+                
+                <div id='clear' class='buttons'>AC</div>
+                <div id='BS' class='buttons'>BS</div>
+
+
+
+            </div>
+
+            <div id='buttons'>
+                <div id='numbers'>
+                    <div data-key='1' class='numbers'>1</div>
+                    <div data-key='2' class='numbers'>2</div>
+                    <div data-key='3' class='numbers'>3</div>
+                    <div data-key='4' class='numbers'>4</div>
+                    <div data-key='5' class='numbers'>5</div>
+                    <div data-key='6' class='numbers'>6</div>
+                    <div data-key='7' class='numbers'>7</div>
+                    <div data-key='8' class='numbers'>8</div>
+                    <div data-key='9' class='numbers'>9</div>
+                    <div data-key='.' id="point" class='buttons'>.</div>
+                    <div data-key='0' class='numbers'>0</div>
+                    <div id='equal' class='buttons' >=</div>
+                </div>
+                
+                <div id='buttonsRight'>
+                    
+                    <div data-key='+' id='add' class='buttons'>+</div>
+                    <div data-key='-' id='subtract' class='buttons'>-</div>
+                    <div data-key='x' id='multiply' class='buttons'>x</div>
+                    <div data-key='/' id='divide' class='buttons'>/</div>
+                </div>
+
+                
+            </div> 
+
+        </div>  
+
+
+
+
+
+    </body>
+
+
+
+
+
+
+
+    <script>
+        
+        const displayScreen = document.querySelector('#screen');
+        var displayValue=displayScreen.textContent;
+
+        function add(a,b){
+            return Number(a) + Number(b);
+        }
+
+        function subtract(a,b){
+            return a-b;
+        }
+
+        function multiply(a,b){
+            return a*b;
+        }
+
+        function divide(a,b){
+            return a/b;
+        }
+
+        function operate(operator,a,b){
+            const operation = document.querySelector(`div[data-key="${operator}"]`);
+            const operationFunction = operation.attributes[1].value;
+            return window[operationFunction](a,b);
+            
+        }
+
+        function pressButton(e){
+            if (btnValue=e.target.attributes[0].value=="equal"){
+                equationParts=[];
+                var displayValue=displayScreen.textContent;
+                equationParts=displayValue.split(" ");
+
+                while (equationParts.length > 1){
+                    const lookingOP = equationParts.findIndex((part) => (part == "/") || (part == "x"));
+                    if (lookingOP > 0){
+                        result = operate(equationParts[lookingOP],equationParts[lookingOP-1],equationParts[lookingOP+1]);
+                        /*equationParts.splice(equationParts.length-1);*/
+                        equationParts.splice(lookingOP-1,3);
+                        equationParts.splice(lookingOP-1,0,result.toString());
+                    } else {
+                        const lookingOP = equationParts.findIndex((part) => (part == "+") || (part == "-"));
+                        result = operate(equationParts[lookingOP],equationParts[lookingOP-1],equationParts[lookingOP+1]);
+                        /*equationParts.splice(equationParts.length-1);*/
+                        equationParts.splice(lookingOP-1,3);
+                        equationParts.splice(lookingOP-1,0,result.toString());
+
+                    }
+
+                }
+                clear();
+                updateDisplay(displayValue,equationParts[0]);
+
+
+            } else {
+                if (btnValue=e.target.attributes[0].value=="clear"){
+                    updateDisplay(displayValue,"clear");
+                } else{
+                
+                    const btnValue=e.target.attributes[0].value;
+                    updateDisplay(displayValue,btnValue);
+                }
+            }   
+        }
+
+        function clear(){
+            displayValue = "0";
+            displayScreen.textContent=displayValue;
+        }
+
+        function countDecimals(value){
+            if(Math.floor(value)===value)return 0;
+            return value.toString().split('.')[1].length || 0;
+        }
+
+        function updateDisplay(displayValue,btnValue){
+            displayValue=displayScreen.textContent;
+            if (btnValue == "clear") {
+                clear();
+            } else {
+            
+                if (displayValue=="0"){
+                    if (btnValue=="BS"){
+                        displayValue=displayValue;
+                    } else{ 
+                    
+                        displayValue=btnValue.toString();
+                        displayScreen.textContent=displayValue;
+                    }
+                } else {
+                    if (btnValue=="BS"){
+                        equationParts=displayValue.split("");
+                        console.log(equationParts[equationParts.length-1]);
+                        if (equationParts[equationParts.length-1]==" ") {
+                            
+                            equationParts.splice(equationParts.length-3,3)
+                        } else {
+
+                            equationParts.splice(equationParts.length-1);
+                        }
+                        
+                        displayValue=equationParts.join("");
+
+                      
+                    }else{
+
+                        if ((btnValue === "+") || (btnValue==="-") || (btnValue==="x") || (btnValue==="/")){
+                            displayValue = displayValue + " " +btnValue.toString()+" ";
+                        } else {
+                        
+                            displayValue = displayValue + btnValue.toString();
+
+                        }
+                    }
+
+                    
+                    displayScreen.textContent=displayValue;
+         
+                    
+                }
+            }
+        }
+
+        window.addEventListener('click',pressButton);
+
+
+
+    </script>
+
+</html>
